@@ -10,7 +10,7 @@
 
 
 
-            <Viewport3D Name="viewPort">
+            <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom">
 
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name = "camMain" Position = "587.5 -1100 950" LookDirection = "0 500 -250">
@@ -19,7 +19,7 @@
 
             <ModelVisual3D>
                 <ModelVisual3D.Content>
-                    <Model3DGroup>
+                    <Model3DGroup x:Name="models">
                         <AmbientLight Color = "Bisque" />
 
                         <GeometryModel3D>
@@ -35,6 +35,12 @@
                                                 TextureCoordinates="0,0 0,-1 1,0 1,-1"/>
                             </GeometryModel3D.Geometry>
                         </GeometryModel3D>
+                        <Model3DGroup.Transform>
+                            <Transform3DGroup>
+                                <TranslateTransform3D x:Name="translacija" OffsetX="0" OffsetY="0" OffsetZ="0"/>
+                                <ScaleTransform3D x:Name="skaliranje" CenterX="587" CenterY="387" ScaleX="1" ScaleY="1" ScaleZ="1"/>
+                            </Transform3DGroup>
+                        </Model3DGroup.Transform>
                     </Model3DGroup>
                 </ModelVisual3D.Content>
             </ModelVisual3D>

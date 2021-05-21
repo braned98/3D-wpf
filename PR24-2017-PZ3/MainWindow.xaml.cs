@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using PR24_2017_PZ3.Model;
 using System.Xml;
 using System.Windows.Media.Media3D;
+using Point = System.Windows.Point;
 
 namespace PR24_2017_PZ3
 {
@@ -38,6 +39,12 @@ namespace PR24_2017_PZ3
         double maxLat = 45.277031;
         double minLon = 19.793909;
         double maxLon = 19.894459;
+
+
+        private Point start = new Point();
+        private Point diffOffset = new Point();
+        private int zoomMax = 7;
+        private int zoomCurent = 1;
 
 
 
@@ -201,7 +208,8 @@ namespace PR24_2017_PZ3
                 ModelVisual3D subStat = new ModelVisual3D(); ;
 
                 GeometryModel3D geoMod = new GeometryModel3D();
-
+             
+                
                 MeshGeometry3D meshGeo = new MeshGeometry3D();
 
                 int x = calculateX(sub.X);
@@ -220,9 +228,10 @@ namespace PR24_2017_PZ3
 
                 subStat.Content = geoMod;
 
-                
+                //viewPort.Children.Add(subStat);
 
-                viewPort.Children.Add(subStat);
+                models.Children.Add(geoMod);
+
                 
             }
         }
@@ -254,9 +263,10 @@ namespace PR24_2017_PZ3
 
                 subStat.Content = geoMod;
 
+                //viewPort.Children.Add(subStat);
 
+                models.Children.Add(geoMod);
 
-                viewPort.Children.Add(subStat);
 
             }
         }
@@ -288,9 +298,10 @@ namespace PR24_2017_PZ3
 
                 subStat.Content = geoMod;
 
+                //viewPort.Children.Add(subStat);
 
+                models.Children.Add(geoMod);
 
-                viewPort.Children.Add(subStat);
 
             }
         }
@@ -324,7 +335,25 @@ namespace PR24_2017_PZ3
 
         private void MouseWheelZoom(object sender, MouseWheelEventArgs e)
         {
-
+            Point p = e.MouseDevice.GetPosition(this);
+            double scaleX = 1;
+            double scaleY = 1;
+            if (e.Delta > 0 && zoomCurent < zoomMax)
+            {
+                scaleX = skaliranje.ScaleX + 0.1;
+                scaleY = skaliranje.ScaleY + 0.1;
+                zoomCurent++;
+                skaliranje.ScaleX = scaleX;
+                skaliranje.ScaleY = scaleY;
+            }
+            else if (e.Delta <= 0 && zoomCurent > -zoomMax)
+            {
+                scaleX = skaliranje.ScaleX - 0.1;
+                scaleY = skaliranje.ScaleY - 0.1;
+                zoomCurent--;
+                skaliranje.ScaleX = scaleX;
+                skaliranje.ScaleY = scaleY;
+            }
         }
     }
 }
