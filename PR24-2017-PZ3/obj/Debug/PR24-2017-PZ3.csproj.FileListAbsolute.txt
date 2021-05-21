@@ -1,0 +1,15 @@
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.csprojAssemblyReference.cache
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\MainWindow.g.cs
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\App.g.cs
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3_MarkupCompile.cache
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3_MarkupCompile.lref
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\bin\Debug\PR24-2017-PZ3.exe.config
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\bin\Debug\PR24-2017-PZ3.exe
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\bin\Debug\PR24-2017-PZ3.pdb
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\MainWindow.baml
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.g.resources
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24_2017_PZ3.Properties.Resources.resources
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.csproj.GenerateResource.cache
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.csproj.CoreCompileInputs.cache
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.exe
+C:\Users\bdobr\source\repos\PR24-2017-PZ3\PR24-2017-PZ3\obj\Debug\PR24-2017-PZ3.pdb
