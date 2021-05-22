@@ -42,8 +42,9 @@ namespace PR24_2017_PZ3
 
 
         private Point start = new Point();
+        private Point Rstart = new Point();
         private Point diffOffset = new Point();
-        private int zoomMax = 7;
+        private int zoomMax = 100;
         private int zoomCurent = 1;
 
 
@@ -338,21 +339,27 @@ namespace PR24_2017_PZ3
             Point p = e.MouseDevice.GetPosition(this);
             double scaleX = 1;
             double scaleY = 1;
+            double scaleZ = 1;
             if (e.Delta > 0 && zoomCurent < zoomMax)
             {
                 scaleX = skaliranje.ScaleX + 0.1;
                 scaleY = skaliranje.ScaleY + 0.1;
+                scaleZ = skaliranje.ScaleZ + 0.1;
                 zoomCurent++;
                 skaliranje.ScaleX = scaleX;
                 skaliranje.ScaleY = scaleY;
+                skaliranje.ScaleZ = scaleZ;
             }
-            else if (e.Delta <= 0 && zoomCurent > -zoomMax)
+            else if (e.Delta <= 0 && zoomCurent > -zoomMax && !(zoomCurent == 1))
             {
                 scaleX = skaliranje.ScaleX - 0.1;
                 scaleY = skaliranje.ScaleY - 0.1;
+                scaleZ = skaliranje.ScaleZ - 0.1;
                 zoomCurent--;
                 skaliranje.ScaleX = scaleX;
                 skaliranje.ScaleY = scaleY;
+                skaliranje.ScaleZ = scaleZ;
+
             }
         }
 
@@ -369,6 +376,17 @@ namespace PR24_2017_PZ3
                 double translateY = -(offsetY * 100000) / h;
                 translacija.OffsetX = diffOffset.X + (translateX / (100 * skaliranje.ScaleX));
                 translacija.OffsetY = diffOffset.Y + (translateY / (100 * skaliranje.ScaleX));
+                start = end;
+            }
+
+            if(e.MiddleButton == MouseButtonState.Pressed)
+            {
+                Point end = e.GetPosition(this);
+                double offsetX = end.X - Rstart.X;
+                double offsetY = end.Y - Rstart.Y;
+                rotateY.Angle += offsetX/2;
+                rotateX.Angle += offsetY/2;
+                Rstart = end;
             }
         }
 
@@ -383,6 +401,14 @@ namespace PR24_2017_PZ3
         private void MouseLeftButtonUpVP(object sender, MouseButtonEventArgs e)
         {
             viewPort.ReleaseMouseCapture();
+        }
+
+        private void MouseDownVP(object sender, MouseButtonEventArgs e)
+        {
+            if(e.MiddleButton == MouseButtonState.Pressed)
+            {
+                Rstart = e.GetPosition(this);
+            }
         }
     }
 }

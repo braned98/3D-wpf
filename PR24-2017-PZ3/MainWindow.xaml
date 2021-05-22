@@ -8,8 +8,8 @@
         Title="PR24-2017" Height="800" Width="1200" Loaded="Load">
     <Grid Name="grid" Width="1175" Height="775">
 
-       <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom" MouseMove="MouseMoveVP" MouseLeftButtonDown="MouseLeftButtonDownVP"
-                   MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True">
+        <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom" MouseMove="MouseMoveVP" MouseLeftButtonDown="MouseLeftButtonDownVP"
+                   MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True" MouseDown="MouseDownVP">
 
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name = "camMain" Position = "587.5 -1100 950" LookDirection = "0 500 -250">
@@ -36,6 +36,21 @@
                         </GeometryModel3D>
                         <Model3DGroup.Transform>
                             <Transform3DGroup>
+                                <RotateTransform3D CenterX="587" CenterY="387">
+                                    <RotateTransform3D.Rotation>
+                                        <AxisAngleRotation3D x:Name = "rotateY" Axis = "0 1 0" Angle="0"/>
+                                    </RotateTransform3D.Rotation>
+                                </RotateTransform3D>
+                                <RotateTransform3D CenterX="587" CenterY="387">
+                                    <RotateTransform3D.Rotation>
+                                        <AxisAngleRotation3D x:Name = "rotateX" Axis = "1 0 0" Angle="0"/>
+                                    </RotateTransform3D.Rotation>
+                                </RotateTransform3D>
+                                <RotateTransform3D CenterX="587" CenterY="387">
+                                    <RotateTransform3D.Rotation>
+                                        <AxisAngleRotation3D x:Name = "rotateZ" Axis = "0 0 1" Angle="0"/>
+                                    </RotateTransform3D.Rotation>
+                                </RotateTransform3D>
                                 <TranslateTransform3D x:Name="translacija" OffsetX="0" OffsetY="0" OffsetZ="0"/>
                                 <ScaleTransform3D x:Name="skaliranje" CenterX="587" CenterY="387" ScaleX="1" ScaleY="1" ScaleZ="1"/>
                             </Transform3DGroup>
@@ -47,16 +62,16 @@
 
             <ModelVisual3D>
                 <ModelVisual3D.Content>
-                    <DirectionalLight x:Name = "dirLightMain" Direction = "-1,-1,-1">
+                    <DirectionalLight x:Name = "dirLightMain" Direction = "0,500,-250">
                     </DirectionalLight>
                 </ModelVisual3D.Content>
             </ModelVisual3D>
-                
-                
 
-           
+
+
+
 
         </Viewport3D>
-        
+
     </Grid>
 </Window>
