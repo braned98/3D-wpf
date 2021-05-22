@@ -355,5 +355,34 @@ namespace PR24_2017_PZ3
                 skaliranje.ScaleY = scaleY;
             }
         }
+
+        private void MouseMoveVP(object sender, MouseEventArgs e)
+        {
+            if (viewPort.IsMouseCaptured)
+            {
+                Point end = e.GetPosition(this);
+                double offsetX = end.X - start.X;
+                double offsetY = end.Y - start.Y;
+                double w = this.Width;
+                double h = this.Height;
+                double translateX = (offsetX * 100000) / w;
+                double translateY = -(offsetY * 100000) / h;
+                translacija.OffsetX = diffOffset.X + (translateX / (100 * skaliranje.ScaleX));
+                translacija.OffsetY = diffOffset.Y + (translateY / (100 * skaliranje.ScaleX));
+            }
+        }
+
+        private void MouseLeftButtonDownVP(object sender, MouseButtonEventArgs e)
+        {
+            viewPort.CaptureMouse();
+            start = e.GetPosition(this);
+            diffOffset.X = translacija.OffsetX;
+            diffOffset.Y = translacija.OffsetY;
+        }
+
+        private void MouseLeftButtonUpVP(object sender, MouseButtonEventArgs e)
+        {
+            viewPort.ReleaseMouseCapture();
+        }
     }
 }

@@ -8,9 +8,8 @@
         Title="PR24-2017" Height="800" Width="1200" Loaded="Load">
     <Grid Name="grid" Width="1175" Height="775">
 
-
-
-            <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom">
+       <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom" MouseMove="MouseMoveVP" MouseLeftButtonDown="MouseLeftButtonDownVP"
+                   MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True">
 
             <Viewport3D.Camera>
                 <PerspectiveCamera x:Name = "camMain" Position = "587.5 -1100 950" LookDirection = "0 500 -250">
