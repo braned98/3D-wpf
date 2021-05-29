@@ -22,6 +22,9 @@ namespace PR24_2017_PZ3
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+    
+
     public partial class MainWindow : Window
     {
 
@@ -30,10 +33,8 @@ namespace PR24_2017_PZ3
         Dictionary<long, SwitchEntity> swcEnt = new Dictionary<long, SwitchEntity>();
         Dictionary<long, LineEntity> lineEnt = new Dictionary<long, LineEntity>();
 
-        int sizeX = 1175; 
-        int sizeY = 775;
-
-        int cubeSize = 5;
+       
+        private static int cubeSize = 5;
 
         double minLat = 45.2325;
         double maxLat = 45.277031;
@@ -46,12 +47,21 @@ namespace PR24_2017_PZ3
         private Point diffOffset = new Point();
         private int zoomMax = 100;
         private int zoomCurent = 1;
+        
+
+        private static int sizeX = 1175 / cubeSize;  //mora biti deljivo sa velicinom stranice kocke!
+        private static int sizeY = 775 / cubeSize;
+        double[,] pointMatrix = new double[sizeX+1, sizeY+1];  //matrica u kojoj ce se cuvati sta je na kojoj poziciji
+                                                           //ako se na poziciji nalazi jedna kocka bice vrednost 1, 
+                                                           //kasnije se povecava vrednost za 1 za svaku kocku na isto poziciji
 
 
 
         public MainWindow()
         {
             InitializeComponent();
+
+           
         }
 
         private void Load(object sender, RoutedEventArgs e)
@@ -66,6 +76,16 @@ namespace PR24_2017_PZ3
             nodeList = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Substations/SubstationEntity");
             nodeList2 = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Nodes/NodeEntity");
             nodeList3 = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Switches/SwitchEntity");
+
+           
+
+            for(int i=0; i<sizeX; i++)
+            {
+                for(int j=0; j<sizeY; j++)
+                {
+                    pointMatrix[i, j] = 0;
+                }
+            }
 
 
             foreach (XmlNode node in nodeList)
@@ -213,23 +233,28 @@ namespace PR24_2017_PZ3
                 
                 MeshGeometry3D meshGeo = new MeshGeometry3D();
 
-                int x = calculateX(sub.X);
-                int y = calculateY(sub.Y);
+                int x1 = calculateX(sub.X);
+                int y1 = calculateY(sub.Y);
 
-                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, 0), new Point3D(x+cubeSize, y, 0) , new Point3D(x, y+cubeSize, 0), new Point3D(x+cubeSize, y+cubeSize, 0),
-                                                       new Point3D(x, y, 0), new Point3D(x+cubeSize, y, cubeSize), new Point3D(x, y+cubeSize, cubeSize), new Point3D(x+cubeSize, y+cubeSize, cubeSize)};
+                int x = x1 * cubeSize;   //mnozim sa cubeSize da dobijem pravu koordinatu na kojoj treba biti nacrtana kocka
+                int y = y1 * cubeSize;
+
+                int value = (int)pointMatrix[x1, y1];
+
+                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
+                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
 
                 meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
 
                 geoMod.Geometry = meshGeo;
-                
+
+                pointMatrix[x1, y1] = value + 1;   //update vrednosti, nacrtala se kocka povecavamo za jedan na tom polju
 
                 geoMod.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Black));
                 
 
                 subStat.Content = geoMod;
-
-                //viewPort.Children.Add(subStat);
+                
 
                 models.Children.Add(geoMod);
 
@@ -248,11 +273,16 @@ namespace PR24_2017_PZ3
 
                 MeshGeometry3D meshGeo = new MeshGeometry3D();
 
-                int x = calculateX(nod.X);
-                int y = calculateY(nod.Y);
+                int x1 = calculateX(nod.X);
+                int y1 = calculateY(nod.Y);
 
-                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, 0), new Point3D(x+cubeSize, y, 0) , new Point3D(x, y+cubeSize, 0), new Point3D(x+cubeSize, y+cubeSize, 0),
-                                                       new Point3D(x, y, 0), new Point3D(x+cubeSize, y, cubeSize), new Point3D(x, y+cubeSize, cubeSize), new Point3D(x+cubeSize, y+cubeSize, cubeSize)};
+                int x = x1 * cubeSize;   //mnozim sa cubeSize da dobijem pravu koordinatu na kojoj treba biti nacrtana kocka
+                int y = y1 * cubeSize;
+
+                int value = (int)pointMatrix[x1, y1];
+
+                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
+                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
 
                 meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
 
@@ -264,7 +294,8 @@ namespace PR24_2017_PZ3
 
                 subStat.Content = geoMod;
 
-                //viewPort.Children.Add(subStat);
+                pointMatrix[x1, y1] = value + 1;   //update vrednosti, nacrtala se kocka povecavamo za jedan na tom polju
+                
 
                 models.Children.Add(geoMod);
 
@@ -283,11 +314,17 @@ namespace PR24_2017_PZ3
 
                 MeshGeometry3D meshGeo = new MeshGeometry3D();
 
-                int x = calculateX(swc.X);
-                int y = calculateY(swc.Y);
+                int x1 = calculateX(swc.X);
+                int y1 = calculateY(swc.Y);
 
-                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, 0), new Point3D(x+cubeSize, y, 0) , new Point3D(x, y+cubeSize, 0), new Point3D(x+cubeSize, y+cubeSize, 0),
-                                                       new Point3D(x, y, 0), new Point3D(x+cubeSize, y, cubeSize), new Point3D(x, y+cubeSize, cubeSize), new Point3D(x+cubeSize, y+cubeSize, cubeSize)};
+                int x = x1 * cubeSize;   //mnozim sa cubeSize da dobijem pravu koordinatu na kojoj treba biti nacrtana kocka
+                int y = y1 * cubeSize;
+
+                int value = (int)pointMatrix[x1, y1];
+
+                meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
+                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
+
 
                 meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
 
@@ -299,8 +336,9 @@ namespace PR24_2017_PZ3
 
                 subStat.Content = geoMod;
 
-                //viewPort.Children.Add(subStat);
-
+                pointMatrix[x1, y1] = value + 1;   //update vrednosti, nacrtala se kocka povecavamo za jedan na tom polju
+                
+                
                 models.Children.Add(geoMod);
 
 
@@ -376,7 +414,7 @@ namespace PR24_2017_PZ3
                 double translateY = -(offsetY * 100000) / h;
                 translacija.OffsetX = diffOffset.X + (translateX / (100 * skaliranje.ScaleX));
                 translacija.OffsetY = diffOffset.Y + (translateY / (100 * skaliranje.ScaleX));
-                start = end;
+                
             }
 
             if(e.MiddleButton == MouseButtonState.Pressed)

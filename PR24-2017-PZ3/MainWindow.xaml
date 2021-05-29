@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:PR24_2017_PZ3"
         mc:Ignorable="d"
         Title="PR24-2017" Height="800" Width="1200" Loaded="Load">
-    <Grid Name="grid" Width="1175" Height="775">
+    <Grid Name="grid" Width="1200" Height="800">
 
         <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom" MouseMove="MouseMoveVP" MouseLeftButtonDown="MouseLeftButtonDownVP"
-                   MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True" MouseDown="MouseDownVP">
+                   MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True"  MouseDown="MouseDownVP">
 
             <Viewport3D.Camera>
-                <PerspectiveCamera x:Name = "camMain" Position = "587.5 -1100 950" LookDirection = "0 500 -250">
+                <PerspectiveCamera x:Name = "camMain" Position = "587.5 -1300 850" LookDirection = "0 500 -250">
                 </PerspectiveCamera>
             </Viewport3D.Camera>
 
