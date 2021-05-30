@@ -33,6 +33,9 @@ namespace PR24_2017_PZ3
         Dictionary<long, NodeEntity> nodeEnt = new Dictionary<long, NodeEntity>();
         Dictionary<long, SwitchEntity> swcEnt = new Dictionary<long, SwitchEntity>();
         Dictionary<long, LineEntity> lineEnt = new Dictionary<long, LineEntity>();
+        Dictionary<long, LineEntity> lineEntDraw = new Dictionary<long, LineEntity>();
+
+        private bool show = true;
 
        
         private static int cubeSize = 5;
@@ -62,6 +65,7 @@ namespace PR24_2017_PZ3
 
         private GeometryModel3D hitgeo;
         private Dictionary<long, GeometryModel3D> ViewPortModels = new Dictionary<long, GeometryModel3D>();
+        private List<IDLine> drawnLines = new List<IDLine>();
 
         public MainWindow()
         {
@@ -78,14 +82,32 @@ namespace PR24_2017_PZ3
             XmlNodeList nodeList;
             XmlNodeList nodeList2;
             XmlNodeList nodeList3;
+            XmlNodeList nodeList4;
 
             nodeList = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Substations/SubstationEntity");
             nodeList2 = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Nodes/NodeEntity");
             nodeList3 = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Switches/SwitchEntity");
+            nodeList4 = xmlDoc.DocumentElement.SelectNodes("/NetworkModel/Lines/LineEntity");
 
-           
+            Button Show = new Button();
+            Show.Content = "Show";
+            Show.Width = 50;
+            Show.Height = 30;
+            Show.Margin = new Thickness(750, 5, 0, 700);
+            Show.Click += Show_Click;
+            grid.Children.Add(Show);
 
-            for(int i=0; i<sizeX; i++)
+            Button Hide = new Button();
+            Hide.Content = "Hide";
+            Hide.Width = 50;
+            Hide.Height = 30;
+            Hide.Margin = new Thickness(870, 5, 0, 700);
+            Hide.Click += Hide_Click;
+            grid.Children.Add(Hide);
+
+
+
+            for (int i=0; i<sizeX; i++)
             {
                 for(int j=0; j<sizeY; j++)
                 {
@@ -179,9 +201,50 @@ namespace PR24_2017_PZ3
 
             }
 
+            foreach (XmlNode node in nodeList4)
+            {
+                LineEntity l = new LineEntity();
+                List<Point> points = new List<Point>();
+
+                l.Id = long.Parse(node.SelectSingleNode("Id").InnerText);
+                l.Name = node.SelectSingleNode("Name").InnerText;
+                if (node.SelectSingleNode("IsUnderground").InnerText.Equals("true"))
+                {
+                    l.IsUnderground = true;
+                }
+                else
+                {
+                    l.IsUnderground = false;
+                }
+                l.R = float.Parse(node.SelectSingleNode("R").InnerText);
+                l.ConductorMaterial = node.SelectSingleNode("ConductorMaterial").InnerText;
+                l.LineType = node.SelectSingleNode("LineType").InnerText;
+                l.ThermalConstantHeat = long.Parse(node.SelectSingleNode("ThermalConstantHeat").InnerText);
+                l.FirstEnd = long.Parse(node.SelectSingleNode("FirstEnd").InnerText);
+                l.SecondEnd = long.Parse(node.SelectSingleNode("SecondEnd").InnerText);
+                l.Vertices = new List<Model.Point>();
+
+                foreach (XmlNode pointNode in node.ChildNodes[9].ChildNodes) // 9 posto je Vertices 9. node u jednom line objektu
+                {
+                    Point p = new Point();
+
+                    p.X = double.Parse(pointNode.SelectSingleNode("X").InnerText);
+                    p.Y = double.Parse(pointNode.SelectSingleNode("Y").InnerText);
+
+                    ToLatLon(p.X, p.Y, 34, out double noviX, out double noviY);
+
+                    l.Vertices.Add(new Model.Point() {X = noviX, Y = noviY });
+                }
+
+                lineEnt.Add(l.Id, l);
+
+            }
+
             drawSubstations();
             drawNodestations();
             drawSwcstations();
+            checkLines();
+            drawLines();
 
 
         }
@@ -248,9 +311,9 @@ namespace PR24_2017_PZ3
                 int value = (int)pointMatrix[x1, y1];
 
                 meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
-                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
+                                                       new Point3D(x, y, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
 
-                meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
+                meshGeo.TriangleIndices = new Int32Collection { 0, 1, 5, 0, 5, 4, 1, 3, 7, 1, 7, 5, 3, 2, 6, 3, 6, 7, 2, 0, 4, 2, 4, 6, 4, 5, 7, 4, 7, 6, 2, 3, 1, 2, 1, 0};
 
                 geoMod.Geometry = meshGeo;
 
@@ -290,9 +353,9 @@ namespace PR24_2017_PZ3
                 int value = (int)pointMatrix[x1, y1];
 
                 meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
-                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
+                                                       new Point3D(x, y, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
 
-                meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
+                meshGeo.TriangleIndices = new Int32Collection { 0, 1, 5, 0, 5, 4, 1, 3, 7, 1, 7, 5, 3, 2, 6, 3, 6, 7, 2, 0, 4, 2, 4, 6, 4, 5, 7, 4, 7, 6, 2, 3, 1, 2, 1, 0 };
 
                 geoMod.Geometry = meshGeo;
 
@@ -332,10 +395,10 @@ namespace PR24_2017_PZ3
                 int value = (int)pointMatrix[x1, y1];
 
                 meshGeo.Positions = new Point3DCollection {new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, value*cubeSize) , new Point3D(x, y+cubeSize, value*cubeSize), new Point3D(x+cubeSize, y+cubeSize, value*cubeSize),
-                                                       new Point3D(x, y, value*cubeSize), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
+                                                       new Point3D(x, y, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y, cubeSize+(value*cubeSize)), new Point3D(x, y+cubeSize, cubeSize+(value*cubeSize)), new Point3D(x+cubeSize, y+cubeSize, cubeSize+(value*cubeSize))};
 
 
-                meshGeo.TriangleIndices = new Int32Collection { 2, 3, 1, 3, 1, 0, 7, 1, 3, 7, 5, 1, 6, 5, 7, 6, 4, 5, 6, 2, 0, 2, 0, 4, 2, 7, 3, 2, 6, 7, 0, 1, 5, 0, 5, 4, };
+                meshGeo.TriangleIndices = new Int32Collection { 0, 1, 5, 0, 5, 4, 1, 3, 7, 1, 7, 5, 3, 2, 6, 3, 6, 7, 2, 0, 4, 2, 4, 6, 4, 5, 7, 4, 7, 6, 2, 3, 1, 2, 1, 0 };
 
                 geoMod.Geometry = meshGeo;
 
@@ -470,10 +533,7 @@ namespace PR24_2017_PZ3
 
             if (rayResult != null)
             {
-
-                DiffuseMaterial darkSide =
-                     new DiffuseMaterial(new SolidColorBrush(
-                     System.Windows.Media.Colors.Red));
+                
                 bool gasit = false;
                 for (int i = 0; i < ViewPortModels.Count; i++)
                 {
@@ -514,12 +574,19 @@ namespace PR24_2017_PZ3
                         grid.Children.Add(toolTip);
                         Grid.SetRow(toolTip, 0);
                         Grid.SetColumn(toolTip, 0);
-                        
-                        
-
 
                     }
                     
+                }
+
+                for (int i = 0; i < drawnLines.Count; i++)
+                {
+                    if ((GeometryModel3D)drawnLines.ElementAt(i).LineSeg == rayResult.ModelHit)
+                    {
+                        hitgeo = (GeometryModel3D)rayResult.ModelHit;
+                        gasit = true;
+                        ChangeColor(drawnLines.ElementAt(i).Id);
+                    }
                 }
                 if (!gasit)
                 {
@@ -528,6 +595,62 @@ namespace PR24_2017_PZ3
             }
 
             return HitTestResultBehavior.Stop;
+        }
+
+        private void ChangeColor(long id)
+        {
+            if (lineEnt.ContainsKey(id))
+            {
+                LineEntity line = lineEnt[id];
+
+                long firstId = IdHelp(line.FirstEnd);
+                long secondId = IdHelp(line.SecondEnd);
+
+                if(firstId != 0 && secondId != 0 && ViewPortModels.ContainsKey(firstId) && ViewPortModels.ContainsKey(secondId))
+                {
+                    GeometryModel3D first = ViewPortModels[firstId];
+                    GeometryModel3D second = ViewPortModels[secondId];
+
+                    GeometryModel3D firstCh = new GeometryModel3D();
+                    GeometryModel3D secondCh = new GeometryModel3D();
+
+                    for(int i=0; i<models.Children.Count; i++)
+                    {
+                        if(models.Children.ElementAt(i) == first)
+                        {
+                            models.Children.RemoveAt(i);
+                            first.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            ViewPortModels[firstId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            models.Children.Insert(i, first);
+                        }
+                        if (models.Children.ElementAt(i) == second)
+                        {
+                            models.Children.RemoveAt(i);
+                            second.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            ViewPortModels[secondId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            models.Children.Insert(i, second);
+                        }
+                    }
+                }
+            }
+        }
+
+        private long IdHelp(long id)
+        {
+            if (swcEnt.ContainsKey(id))
+            {
+                return swcEnt[id].Id;
+
+            }else if (nodeEnt.ContainsKey(id))
+            {
+                return nodeEnt[id].Id;
+
+            }else if (subEnt.ContainsKey(id))
+            {
+                return subEnt[id].Id;
+            }
+
+            return 0;
         }
 
         private PowerEntity FindEntity(long key)
@@ -566,6 +689,105 @@ namespace PR24_2017_PZ3
             return null;
         }
 
+        private void checkLines()  ///crtam samo linije koje imaju cvorove na mapi
+        {
+            foreach(LineEntity line in lineEnt.Values)
+            {
+                if ((ViewPortModels.ContainsKey(line.FirstEnd) && ViewPortModels.ContainsKey(line.SecondEnd)))
+                {
+                    lineEntDraw.Add(line.Id, line);
+                }
+            }
+        }
+
+        private void drawLines()
+        {
+            foreach(LineEntity line in lineEntDraw.Values)
+            {
+                for(int i=0; i<line.Vertices.Count-1; i++)
+                {
+                    for(int j=1; j<line.Vertices.Count; j++)
+                    {
+                        drawLineSegment(line.Vertices[i], line.Vertices[j], line.Id);
+                        i++;
+                    }
+                }
+            }
+        }
+
+        private void drawLineSegment(Model.Point point1, Model.Point point2, long id)
+        {
+           ModelVisual3D subStat = new ModelVisual3D(); ;
+
+            GeometryModel3D geoMod = new GeometryModel3D();
+
+            MeshGeometry3D meshGeo = new MeshGeometry3D();
+
+            int x = calculateX(point1.Y);
+            int y = calculateY(point1.X);
+
+            int x1 = x * cubeSize;   //mnozim sa cubeSize da dobijem pravu koordinatu na kojoj treba biti nacrtana kocka
+            int y1 = y * cubeSize;
+
+            x = calculateX(point2.Y);
+            y = calculateY(point2.X);
+
+            int x2 = x * cubeSize;   //mnozim sa cubeSize da dobijem pravu koordinatu na kojoj treba biti nacrtana kocka
+            int y2 = y * cubeSize;
+
+
+            if(x1 > x2)
+            {
+                int tempX = x1;
+                int tempY = y1;
+                x1 = x2;
+                x2 = tempX;
+                y1 = y2;
+                y2 = tempY;
+            }
+
+            if(y2 > y1)
+            {
+
+                int tempX = x1;
+                int tempY = y1;
+                x1 = x2;
+                x2 = tempX;
+                y1 = y2;
+                y2 = tempY;
+            }
+
+            if ((x2 - x1) < 15 && (Math.Abs(y1 - y2) > (x2 - x1)))
+            {
+                meshGeo.Positions = new Point3DCollection {new Point3D(x1, y1, 0), new Point3D(x2, y2, 0) , new Point3D(x1+cubeSize, y1, 0), new Point3D(x2+cubeSize, y2, cubeSize),
+                                                       new Point3D(x1, y1, cubeSize-2), new Point3D(x2, y2, cubeSize-2), new Point3D(x1+cubeSize, y1, cubeSize-2), new Point3D(x2+cubeSize, y2, cubeSize-2)};
+                meshGeo.TriangleIndices = new Int32Collection { 0, 2, 6, 0, 6, 4, 2, 3, 7, 2, 7, 6, 4, 6, 7, 4, 7, 5, 3, 1, 5, 3, 5, 7, 1, 3, 2, 1, 2, 0, 1, 0, 4, 1, 4, 5 };
+
+            }
+            else
+            {
+                meshGeo.Positions = new Point3DCollection {new Point3D(x1, y1, 0), new Point3D(x2, y2, 0) , new Point3D(x1, y1+cubeSize, 0), new Point3D(x2, y2+cubeSize, cubeSize),
+                                                       new Point3D(x1, y1, cubeSize-2), new Point3D(x2, y2, cubeSize-2), new Point3D(x1, y1+cubeSize, cubeSize-2), new Point3D(x2, y2+cubeSize, cubeSize-2)};
+                meshGeo.TriangleIndices = new Int32Collection { 0, 1, 5, 0, 5, 4, 1, 3, 7, 1, 7, 5, 3, 2, 6, 3, 6, 7, 2, 0, 4, 2, 4, 6, 4, 5, 7, 4, 7, 6, 2, 3, 1, 2, 1, 0 };
+
+
+            }
+
+
+            geoMod.Geometry = meshGeo;
+
+
+            geoMod.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Green));
+
+
+            subStat.Content = geoMod;
+
+            models.Children.Add(geoMod);
+            drawnLines.Add(new IDLine() { Id = id, LineSeg = geoMod });
+            //ViewPortModels.Add(swc.Id, geoMod);
+
+        }
+
         private void MouseLeftButtonUpVP(object sender, MouseButtonEventArgs e)
         {
             viewPort.ReleaseMouseCapture();
@@ -577,6 +799,39 @@ namespace PR24_2017_PZ3
             {
                 Rstart = e.GetPosition(this);
             }
+        }
+
+        private void Show_Click(object sender, RoutedEventArgs e)
+        {
+            if(show == true)
+            {
+                return;
+            }
+            else
+            {
+                foreach(IDLine geoMod in drawnLines)
+                {
+                    models.Children.Add(geoMod.LineSeg);
+                }
+            }
+            show = true;
+        }
+
+        private void Hide_Click(object sender, RoutedEventArgs e)
+        {
+            if (show == false)
+            {
+                return;
+            }
+            else
+            {
+                foreach (IDLine geoMod in drawnLines)
+                {
+                    models.Children.Remove(geoMod.LineSeg);
+                }
+            }
+
+            show = false;
         }
     }
 }
