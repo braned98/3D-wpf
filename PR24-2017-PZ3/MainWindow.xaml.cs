@@ -620,14 +620,14 @@ namespace PR24_2017_PZ3
                         {
                             models.Children.RemoveAt(i);
                             first.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
-                            ViewPortModels[firstId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            ViewPortModels[firstId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.DarkGreen));
                             models.Children.Insert(i, first);
                         }
                         if (models.Children.ElementAt(i) == second)
                         {
                             models.Children.RemoveAt(i);
                             second.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
-                            ViewPortModels[secondId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.Orange));
+                            ViewPortModels[secondId].Material = new DiffuseMaterial(new SolidColorBrush(Colors.DarkGreen));
                             models.Children.Insert(i, second);
                         }
                     }
@@ -777,7 +777,7 @@ namespace PR24_2017_PZ3
             geoMod.Geometry = meshGeo;
 
 
-            geoMod.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Green));
+            geoMod.Material = new DiffuseMaterial(new SolidColorBrush(Colors.Gold));
 
 
             subStat.Content = geoMod;
