@@ -5,8 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PR24_2017_PZ3"
         mc:Ignorable="d"
-        Title="PR24-2017" Height="800" Width="1200" Loaded="Load">
-    <Grid Name="grid" Width="1200" Height="800">
+        Title="PR24-2017" Name="window" Height="800" Width="1200" Loaded="Load">
+
+
+    <Grid Name="grid">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="800"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        
 
         <Viewport3D Name="viewPort" MouseWheel="MouseWheelZoom" MouseMove="MouseMoveVP" MouseLeftButtonDown="MouseLeftButtonDownVP"
                    MouseLeftButtonUp="MouseLeftButtonUpVP" ClipToBounds="True"  MouseDown="MouseDownVP">
@@ -16,7 +28,9 @@
                 </PerspectiveCamera>
             </Viewport3D.Camera>
 
-            <ModelVisual3D>
+        
+
+        <ModelVisual3D>
                 <ModelVisual3D.Content>
                     <Model3DGroup x:Name="models">
                         <AmbientLight Color = "Bisque" />
@@ -66,12 +80,11 @@
                     </DirectionalLight>
                 </ModelVisual3D.Content>
             </ModelVisual3D>
-
-
-
-
-
         </Viewport3D>
 
+        
+
+
     </Grid>
+
 </Window>

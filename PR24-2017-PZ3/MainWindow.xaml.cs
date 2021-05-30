@@ -16,6 +16,7 @@ using PR24_2017_PZ3.Model;
 using System.Xml;
 using System.Windows.Media.Media3D;
 using Point = System.Windows.Point;
+using System.Collections;
 
 namespace PR24_2017_PZ3
 {
@@ -52,10 +53,15 @@ namespace PR24_2017_PZ3
         private static int sizeX = 1175 / cubeSize;  //mora biti deljivo sa velicinom stranice kocke!
         private static int sizeY = 775 / cubeSize;
         double[,] pointMatrix = new double[sizeX+1, sizeY+1];  //matrica u kojoj ce se cuvati sta je na kojoj poziciji
-                                                           //ako se na poziciji nalazi jedna kocka bice vrednost 1, 
-                                                           //kasnije se povecava vrednost za 1 za svaku kocku na isto poziciji
+                                                               //ako se na poziciji nalazi jedna kocka bice vrednost 1, 
+                                                               //kasnije se povecava vrednost za 1 za svaku kocku na isto poziciji
 
+        TextBlock toolTip = new TextBlock();
+        double toolTipX;
+        double toolTipY;
 
+        private GeometryModel3D hitgeo;
+        private Dictionary<long, GeometryModel3D> ViewPortModels = new Dictionary<long, GeometryModel3D>();
 
         public MainWindow()
         {
@@ -257,8 +263,10 @@ namespace PR24_2017_PZ3
                 
 
                 models.Children.Add(geoMod);
+                ViewPortModels.Add(sub.Id, geoMod);
 
-                
+
+
             }
         }
 
@@ -298,6 +306,7 @@ namespace PR24_2017_PZ3
                 
 
                 models.Children.Add(geoMod);
+                ViewPortModels.Add(nod.Id, geoMod);
 
 
             }
@@ -340,6 +349,7 @@ namespace PR24_2017_PZ3
                 
                 
                 models.Children.Add(geoMod);
+                ViewPortModels.Add(swc.Id, geoMod);
 
 
             }
@@ -430,10 +440,130 @@ namespace PR24_2017_PZ3
 
         private void MouseLeftButtonDownVP(object sender, MouseButtonEventArgs e)
         {
+            grid.Children.Remove(toolTip);
+
             viewPort.CaptureMouse();
             start = e.GetPosition(this);
             diffOffset.X = translacija.OffsetX;
             diffOffset.Y = translacija.OffsetY;
+
+            ////HIT TEST
+            System.Windows.Point mouseposition = e.GetPosition(viewPort);
+            Point3D testpoint3D = new Point3D(mouseposition.X, mouseposition.Y, 0);
+            Vector3D testdirection = new Vector3D(mouseposition.X, mouseposition.Y, 10);
+
+            PointHitTestParameters pointparams =
+                     new PointHitTestParameters(mouseposition);
+            RayHitTestParameters rayparams =
+                     new RayHitTestParameters(testpoint3D, testdirection);
+
+            //test for a result in the Viewport3D     
+            hitgeo = null;
+            VisualTreeHelper.HitTest(viewPort, null, HTResult, pointparams);
+
+        }
+
+        private HitTestResultBehavior HTResult(System.Windows.Media.HitTestResult rawresult)
+        {
+
+            RayHitTestResult rayResult = rawresult as RayHitTestResult;
+
+            if (rayResult != null)
+            {
+
+                DiffuseMaterial darkSide =
+                     new DiffuseMaterial(new SolidColorBrush(
+                     System.Windows.Media.Colors.Red));
+                bool gasit = false;
+                for (int i = 0; i < ViewPortModels.Count; i++)
+                {
+                    if ((GeometryModel3D)ViewPortModels.ElementAt(i).Value == rayResult.ModelHit)
+                    {
+                        hitgeo = (GeometryModel3D)rayResult.ModelHit;
+                        gasit = true;
+                        PowerEntity ent = FindEntity(ViewPortModels.ElementAt(i).Key);
+                        toolTipX = start.X;
+                        toolTipY = start.Y;
+
+                        if(toolTipY < 404)
+                        {
+                            toolTipY -= 70;
+                        }
+
+                        if(toolTipX < 700 && toolTipX > 500)
+                        {
+                            toolTipX = 400;
+                        }else if (toolTipX < 500 && toolTipX > 300)
+                        {
+                            toolTipX = 200;
+                        }
+                        else if (toolTipX < 300 && toolTipX > 100)
+                        {
+                            toolTipX = 100;
+                        }else if(toolTipX > 700)
+                        {
+                            toolTipX += 200;
+                        }
+
+                        toolTip.Text = "Name: " + ent.Name + " ID: " + ent.Id.ToString() + "\nTip: " + FindType(ent);
+                        toolTip.Foreground = Brushes.Black;
+                        toolTip.Background = Brushes.White;
+                        toolTip.Width = 300;
+                        toolTip.Height = 30;
+                        toolTip.Margin = new Thickness(toolTipX-680, toolTipY-300, 0, 0);
+                        grid.Children.Add(toolTip);
+                        Grid.SetRow(toolTip, 0);
+                        Grid.SetColumn(toolTip, 0);
+                        
+                        
+
+
+                    }
+                    
+                }
+                if (!gasit)
+                {
+                    hitgeo = null;
+                }
+            }
+
+            return HitTestResultBehavior.Stop;
+        }
+
+        private PowerEntity FindEntity(long key)
+        {
+            if (swcEnt.ContainsKey(key))
+            {
+                return swcEnt[key];
+            }
+            if (nodeEnt.ContainsKey(key))
+            {
+                return nodeEnt[key];
+            }
+            if (subEnt.ContainsKey(key))
+            {
+                return subEnt[key];
+            }
+
+            return null;
+        }
+
+        private string FindType(PowerEntity ent)
+        {
+            if (swcEnt.ContainsKey(ent.Id))
+            {
+                return "SwitchEntity";
+            }
+            if (nodeEnt.ContainsKey(ent.Id))
+            {
+                return "NodeEntity";
+            }
+            if (subEnt.ContainsKey(ent.Id))
+            {
+                return "SubstationEntity";
+            }
+
+            return null;
         }
 
         private void MouseLeftButtonUpVP(object sender, MouseButtonEventArgs e)
